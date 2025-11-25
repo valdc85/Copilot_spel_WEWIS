@@ -4,7 +4,7 @@ const challenges = [
     // "Excel: Maak een grafiek van een dataset via Copilot.",
     // "Outlook: Vat een lange e-mail samen met Copilot.",
     // "Teams: Genereer een agenda voor een meeting.",
-    “Vraag Copilot om een grappige titel voor een PowerPoint over deze community”,
+    "Vraag Copilot om een grappige titel voor een PowerPoint over deze community",
   "Je wil een grafiek in Excel. Welke prompt gebruik je?",
     "Je wil een samenvatting van een document in Word. Schrijf een goede prompt.",
     "Je wil een e-mail herschrijven in een vriendelijke toon. Hoe vraag je dat?",
@@ -12,12 +12,12 @@ const challenges = [
     "Je wil een PowerPoint-slide met 3 kernpunten. Welke prompt geef je?",
     "Je wil een KPI-overzicht in Excel. Hoe vraag je dat aan Copilot?",
     "Je wil een agenda voor een projectmeeting. Schrijf een voorbeeldprompt.",
-  "Gebruik Copilot om een lijst te maken van 5 redenen waarom Copilot beter is dan koffie.”,
+  "Gebruik Copilot om een lijst te maken van 5 redenen waarom Copilot beter is dan koffie.",
     "Je wil een titel voor een rapport in Word. Hoe formuleer je dat?",
     "Je wil een follow-up mail na een vergadering. Geef een goede prompt.",
-    "Je wil een tekst vertalen naar Engels. Hoe vraag je dat aan Copilot?"
-  “Vraag Copilot om een slogan voor jouw team, alsof het een rockband is.”
-    “Laat Copilot een gedicht maken over deadlines.”
+    "Je wil een tekst vertalen naar Engels. Hoe vraag je dat aan Copilot?",
+   "Vraag Copilot om een slogan voor jouw team, alsof het een rockband is.",
+    "Laat Copilot een gedicht maken over deadlines."
 ];
 
 const knowledgeQuestions = [
