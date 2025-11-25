@@ -21,152 +21,195 @@ const challenges = [
     “Laat Copilot een gedicht maken over deadlines.”
 ];
 
+const knowledgeQuestions = [
+  {
+    question: "Wat doet Copilot in Outlook?",
+    options: ["Maakt vergaderingen", "Vat e-mails samen en stelt antwoorden voor", "Verwijdert spam"],
+    correct: 1
+  },
+  {
+    question: "Wat is een goede tip voor een prompt?",
+    options: ["Wees vaag", "Geef context en doel", "Gebruik één woord"],
+    correct: 1
+  },
+  {
+    question: "Waar vind je Copilot in Excel?",
+    options: ["In de lintbalk bij ‘Invoegen’", "In de Copilot-knop rechtsboven", "In de statusbalk"],
+    correct: 1
+  },
+  {
+    question: "Welke prompt is het meest effectief voor Word?",
+    options: ["Schrijf iets", "Maak een rapport over Q4-resultaten met samenvatting en conclusies", "Doe iets met tekst"],
+    correct: 1
+  }
+];
+
+// ====== Elementen ======
 const board = document.getElementById("board");
 const info = document.getElementById("info");
 const scoreboard = document.getElementById("scoreboard");
-const timerDisplay = document.getElementById("timer");
-const reviewSection = document.getElementById("review");
-const currentPlayerNameSpan = document.getElementById("currentPlayerName");
+const review = document.getElementById("review");
+const currentPlayerName = document.getElementById("currentPlayerName");
+const timerEl = document.getElementById("timer");
 
+// Knoppen
+const startBtn = document.getElementById("startBtn");
+const rollBtn = document.getElementById("rollBtn");
+const timerBtn = document.getElementById("timerBtn");
+const knowledgeBtn = document.getElementById("knowledgeBtn");
+const instructionsBtn = document.getElementById("instructionsBtn");
+const closeModalBtn = document.getElementById("closeModal");
+
+// Modal
+const instructionsModal = document.getElementById("instructionsModal");
+
+// ====== State ======
 let players = [];
 let scores = [];
 let currentPlayer = 0;
 let timeLeft = 60;
-let timerInterval;
+let timerInterval = null;
 
-// Bord opbouwen
+// ====== Bord ======
 function createBoard() {
-    board.innerHTML = "";
-    for (let i = 0; i < challenges.length; i++) {
-        const cell = document.createElement("div");
-        cell.className = "cell";
-        cell.textContent = "Vak " + (i + 1);
-        cell.addEventListener("click", () => showChallenge(challenges[i]));
-        board.appendChild(cell);
-    }
+  board.innerHTML = "";
+  for (let i = 0; i < challenges.length; i++) {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.textContent = "Vak " + (i + 1);
+    cell.addEventListener("click", () => showChallenge(challenges[i]));
+    board.appendChild(cell);
+  }
 }
 
+// ====== Spelers ======
 function setupPlayers() {
-    const count = parseInt(document.getElementById("playerCount").value);
-    if (count < 2 || count > 6) {
-        alert("Kies tussen 2 en 6 spelers.");
-        return;
-    }
-    players = [];
-    scores = [];
-    for (let i = 1; i <= count; i++) {
-        players.push("Speler " + i);
-        scores.push(0);
-    }
-    currentPlayer = 0;
-    updateScoreboard();
-    createBoard();
-    info.textContent = `Spel gestart met ${count} spelers! ${players[0]} begint.`;
+  const count = parseInt(document.getElementById("playerCount").value, 10);
+  if (Number.isNaN(count) || count < 2 || count > 6) {
+    alert("Kies tussen 2 en 6 spelers.");
+    return;
+  }
+  players = [];
+  scores = [];
+  for (let i = 1; i <= count; i++) {
+    players.push("Speler " + i);
+    scores.push(0);
+  }
+  currentPlayer = 0;
+  updateScoreboard();
+  createBoard();
+  info.textContent = `Spel gestart met ${count} spelers! ${players[0]} begint.`;
+}
+
+// ====== Uitdaging + review ======
+function showChallenge(challenge) {
+  info.textContent = `🎯 ${players[currentPlayer]}: ${challenge}`;
+  review.setAttribute("aria-hidden", "false");
+  currentPlayerName.textContent = players[currentPlayer];
 }
 
 function rollDice() {
-    const dice = Math.floor(Math.random() * challenges.length);
-    showChallenge(challenges[dice]);
+  const dice = Math.floor(Math.random() * challenges.length);
+  showChallenge(challenges[dice]);
 }
 
-function showChallenge(challenge) {
-    info.textContent = `🎯 ${players[currentPlayer]}: ${challenge}`;
-    reviewSection.style.display = "block";
-    currentPlayerNameSpan.textContent = players[currentPlayer];
-}
-
+// ====== Scorebord ======
 function updateScoreboard() {
-    scoreboard.innerHTML = "";
-    players.forEach((player, index) => {
-        const row = document.createElement("div");
-        row.className = "row";
-        row.innerHTML = `${player}: ${scores[index]} punten`;
-        scoreboard.appendChild(row);
-    });
+  scoreboard.innerHTML = "";
+  players.forEach((p, i) => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.textContent = `${p}: ${scores[i]} punten`;
+    scoreboard.appendChild(row);
+  });
 }
 
+// ====== Punten en beurt ======
 function addPoint() {
-    scores[currentPlayer]++;
-    updateScoreboard();
-    nextPlayer();
+  scores[currentPlayer]++;
+  updateScoreboard();
+  nextPlayer();
 }
 
 function nextPlayer() {
-    currentPlayer = (currentPlayer + 1) % players.length;
-    reviewSection.style.display = "none";
-    info.textContent = `Nu is ${players[currentPlayer]} aan de beurt.`;
+  currentPlayer = (currentPlayer + 1) % players.length;
+  review.setAttribute("aria-hidden", "true");
+  info.textContent = `Nu is ${players[currentPlayer]} aan de beurt.`;
 }
 
+// ====== Timer ======
 function startTimer() {
-    clearInterval(timerInterval);
-    timeLeft = 60;
-    timerDisplay.textContent = "⏱ Tijd: " + timeLeft + " seconden";
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        timerDisplay.textContent = "⏱ Tijd: " + timeLeft + " seconden";
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            alert("⏰ Tijd is om! Eindscore:\n" + players.map((p, i) => `${p}: ${scores[i]} punten`).join("\n"));
-        }
-    }, 1000);
+  clearInterval(timerInterval);
+  timeLeft = 60;
+  timerEl.textContent = "⏱ Tijd: " + timeLeft + " seconden";
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    timerEl.textContent = "⏱ Tijd: " + timeLeft + " seconden";
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      const summary = players.map((p, i) => `${p}: ${scores[i]} punten`).join("\n");
+      alert("⏰ Tijd is om! Eindscore:\n" + summary);
+    }
+  }, 1000);
 }
 
-// Event listeners
-document.getElementById("startBtn").addEventListener("click", setupPlayers);
-document.getElementById("rollBtn").addEventListener("click", rollDice);
-document.getElementById("timerBtn").addEventListener("click", startTimer);
-document.getElementById("goodBtn").addEventListener("click", addPoint);
-document.getElementById("badBtn").addEventListener("click", nextPlayer);
-
-// Modal instructies
-document.getElementById("instructionsBtn").addEventListener("click", () => {
-    document.getElementById("instructionsModal").setAttribute("aria-hidden", "false");
-});
-document.getElementById("closeModal").addEventListener("click", () => {
-    document.getElementById("instructionsModal").setAttribute("aria-hidden", "true");
-});
-
-
-const knowledgeQuestions = [
-    {
-        question: "Wat doet Copilot in Outlook?",
-        options: ["Maakt automatisch vergaderingen aan", "Vat e-mails samen en stelt antwoorden voor", "Verwijdert spam"],
-        correct: 1
-    },
-    {
-        question: "Welke prompt is het meest effectief voor Copilot in Word?",
-        options: ["Schrijf iets", "Maak een rapport over Q4-resultaten met een samenvatting en conclusies", "Doe iets met tekst"],
-        correct: 1
-    },
-    {
-        question: "Waar vind je Copilot in Excel?",
-        options: ["In de lintbalk bij ‘Invoegen’", "In de Copilot-knop rechtsboven", "In de statusbalk"],
-        correct: 1
-    },
-    {
-        question: "Wat is een goede tip voor een prompt?",
-        options: ["Wees vaag", "Geef context en doel", "Gebruik alleen één woord"],
-        correct: 1
-    }
-];
-
-document.getElementById("knowledgeBtn").addEventListener("click", startKnowledgeRound);
-
+// ====== Kennisronde ======
 function startKnowledgeRound() {
-    const q = knowledgeQuestions[Math.floor(Math.random() * knowledgeQuestions.length)];
-    info.innerHTML = `<strong>${players[currentPlayer]}:</strong> ${q.question}<br>
-        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${i}, ${q.correct})">${opt}</button>`).join("<br>")}`;
-    reviewSection.style.display = "none"; // geen promptbeoordeling hier
+  if (players.length === 0) {
+    alert("Start eerst het spel door het aantal spelers te kiezen.");
+    return;
+  }
+  const q = knowledgeQuestions[Math.floor(Math.random() * knowledgeQuestions.length)];
+  info.innerHTML = `<strong>${players[currentPlayer]}:</strong> ${q.question}<br>` +
+    q.options
+      .map((opt, i) => `<button class="secondary" data-idx="${i}">${opt}</button>`)
+      .join(" ");
+  review.setAttribute("aria-hidden", "true");
+
+  // Bind eenmalige click handlers op opties
+  const buttons = info.querySelectorAll("button[data-idx]");
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const sel = parseInt(btn.getAttribute("data-idx"), 10);
+      checkAnswer(sel, q.correct);
+    }, { once: true });
+  });
 }
 
 function checkAnswer(selected, correct) {
-    if (selected === correct) {
-        alert("✅ Goed antwoord!");
-        scores[currentPlayer]++;
-    } else {
-        alert("❌ Fout antwoord!");
-    }
-    updateScoreboard();
-    nextPlayer();
+  if (selected === correct) {
+    alert("✅ Goed antwoord!");
+    scores[currentPlayer]++;
+  } else {
+    alert("❌ Fout antwoord!");
+  }
+  updateScoreboard();
+  nextPlayer();
 }
 
+// ====== Modal Instructies ======
+instructionsBtn.addEventListener("click", () => {
+  instructionsModal.setAttribute("aria-hidden", "false");
+  closeModalBtn.focus();
+});
+closeModalBtn.addEventListener("click", () => {
+  instructionsModal.setAttribute("aria-hidden", "true");
+});
+instructionsModal.addEventListener("click", (e) => {
+  if (e.target === instructionsModal) {
+    instructionsModal.setAttribute("aria-hidden", "true");
+  }
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && instructionsModal.getAttribute("aria-hidden") === "false") {
+    instructionsModal.setAttribute("aria-hidden", "true");
+  }
+});
+
+// ====== Event listeners ======
+startBtn.addEventListener("click", setupPlayers);
+rollBtn.addEventListener("click", rollDice);
+timerBtn.addEventListener("click", startTimer);
+knowledgeBtn.addEventListener("click", startKnowledgeRound);
+document.getElementById("goodBtn").addEventListener("click", addPoint);
+document.getElementById("badBtn").addEventListener("click", nextPlayer);
