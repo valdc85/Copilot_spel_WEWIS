@@ -1,38 +1,32 @@
 
-// Uitdagingen per vakje
 const challenges = [
-  "Word: Schrijf een projectintroductie met Copilot.",
-  "Excel: Maak een grafiek van een dataset via Copilot.",
-  "Outlook: Vat een lange e-mail samen met Copilot.",
-  "Teams: Genereer een agenda voor een meeting.",
-  "PowerPoint: Maak een creatieve titel voor een presentatie.",
-  "Word: Genereer een rapportstructuur.",
-  "Excel: Analyseer trends in een tabel.",
-  "Outlook: Schrijf een follow-up mail na een vergadering.",
-  "Teams: Stel een brainstormlijst op.",
-  "Word: Vertaal een tekst naar Engels.",
-  "Excel: Maak een formule met Copilot.",
-  "Outlook: Stel een out-of-office bericht op.",
-  "Teams: Vat een chatgesprek samen.",
-  "PowerPoint: Genereer een slide met kernpunten.",
-  "Word: Maak een samenvatting van een document.",
-  "Excel: Bereken KPI’s met Copilot."
+    // Mix van oude en nieuwe uitdagingen
+    // "Word: Schrijf een projectintroductie met Copilot.",
+    // "Excel: Maak een grafiek van een dataset via Copilot.",
+    // "Outlook: Vat een lange e-mail samen met Copilot.",
+    // "Teams: Genereer een agenda voor een meeting.",
+    “Vraag Copilot om een grappige titel voor een PowerPoint over deze community”,
+  "Je wil een grafiek in Excel. Welke prompt gebruik je?",
+    "Je wil een samenvatting van een document in Word. Schrijf een goede prompt.",
+    "Je wil een e-mail herschrijven in een vriendelijke toon. Hoe vraag je dat?",
+    "Je wil een brainstormlijst in Teams. Formuleer een duidelijke prompt.",
+    "Je wil een PowerPoint-slide met 3 kernpunten. Welke prompt geef je?",
+    "Je wil een KPI-overzicht in Excel. Hoe vraag je dat aan Copilot?",
+    "Je wil een agenda voor een projectmeeting. Schrijf een voorbeeldprompt.",
+  "Gebruik Copilot om een lijst te maken van 5 redenen waarom Copilot beter is dan koffie.”,
+    "Je wil een titel voor een rapport in Word. Hoe formuleer je dat?",
+    "Je wil een follow-up mail na een vergadering. Geef een goede prompt.",
+    "Je wil een tekst vertalen naar Engels. Hoe vraag je dat aan Copilot?"
+  “Vraag Copilot om een slogan voor jouw team, alsof het een rockband is.”
+    “Laat Copilot een gedicht maken over deadlines.”
 ];
 
 const board = document.getElementById("board");
 const info = document.getElementById("info");
 const scoreboard = document.getElementById("scoreboard");
 const timerDisplay = document.getElementById("timer");
-
-const startBtn = document.getElementById("startBtn");
-const rollBtn = document.getElementById("rollBtn");
-const timerBtn = document.getElementById("timerBtn");
-
-const playerCountInput = document.getElementById("playerCount");
-
-const instructionsBtn = document.getElementById("instructionsBtn");
-const instructionsModal = document.getElementById("instructionsModal");
-const closeModalBtn = document.getElementById("closeModal");
+const reviewSection = document.getElementById("review");
+const currentPlayerNameSpan = document.getElementById("currentPlayerName");
 
 let players = [];
 let scores = [];
@@ -40,123 +34,139 @@ let currentPlayer = 0;
 let timeLeft = 60;
 let timerInterval;
 
-// ===== Modal Instructies =====
-instructionsBtn.addEventListener("click", () => {
-  instructionsModal.setAttribute("aria-hidden", "false");
-  // Focus binnen modal (toegankelijkheid)
-  closeModalBtn.focus();
-});
-
-closeModalBtn.addEventListener("click", () => {
-  instructionsModal.setAttribute("aria-hidden", "true");
-  instructionsBtn.focus();
-});
-
-// Sluit modal bij klik buiten content
-instructionsModal.addEventListener("click", (e) => {
-  if (e.target === instructionsModal) {
-    instructionsModal.setAttribute("aria-hidden", "true");
-    instructionsBtn.focus();
-  }
-});
-
-// Sluit modal met Escape
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && instructionsModal.getAttribute("aria-hidden") === "false") {
-    instructionsModal.setAttribute("aria-hidden", "true");
-    instructionsBtn.focus();
-  }
-});
-
-// ===== Spelbord opbouwen =====
+// Bord opbouwen
 function createBoard() {
-  board.innerHTML = "";
-  for (let i = 0; i < challenges.length; i++) {
-    const cell = document.createElement("div");
-    cell.className = "cell";
-    cell.textContent = "Vak " + (i + 1);
-    cell.addEventListener("click", () => {
-      info.textContent = `🎯 ${players[currentPlayer]}: ${challenges[i]}`;
-    });
-    board.appendChild(cell);
-  }
+    board.innerHTML = "";
+    for (let i = 0; i < challenges.length; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.textContent = "Vak " + (i + 1);
+        cell.addEventListener("click", () => showChallenge(challenges[i]));
+        board.appendChild(cell);
+    }
 }
 
-// ===== Spelers instellen =====
 function setupPlayers() {
-  const count = parseInt(playerCountInput.value, 10);
-  if (Number.isNaN(count) || count < 2 || count > 6) {
-    alert("Kies tussen 2 en 6 spelers.");
-    return;
-  }
-  players = [];
-  scores = [];
-  for (let i = 1; i <= count; i++) {
-    players.push("Speler " + i);
-    scores.push(0);
-  }
-  currentPlayer = 0;
-  updateScoreboard();
-  createBoard();
-  info.textContent = `Spel gestart met ${count} spelers! ${players[0]} begint.`;
+    const count = parseInt(document.getElementById("playerCount").value);
+    if (count < 2 || count > 6) {
+        alert("Kies tussen 2 en 6 spelers.");
+        return;
+    }
+    players = [];
+    scores = [];
+    for (let i = 1; i <= count; i++) {
+        players.push("Speler " + i);
+        scores.push(0);
+    }
+    currentPlayer = 0;
+    updateScoreboard();
+    createBoard();
+    info.textContent = `Spel gestart met ${count} spelers! ${players[0]} begint.`;
 }
 
-// ===== Dobbelsteen =====
 function rollDice() {
-  if (players.length === 0) {
-    alert("Start eerst het spel door het aantal spelers te kiezen.");
-    return;
-  }
-  const dice = Math.floor(Math.random() * challenges.length);
-  info.textContent = `🎲 ${players[currentPlayer]} gooide ${dice + 1}! Uitdaging: ${challenges[dice]}`;
+    const dice = Math.floor(Math.random() * challenges.length);
+    showChallenge(challenges[dice]);
 }
 
-// ===== Scorebord =====
+function showChallenge(challenge) {
+    info.textContent = `🎯 ${players[currentPlayer]}: ${challenge}`;
+    reviewSection.style.display = "block";
+    currentPlayerNameSpan.textContent = players[currentPlayer];
+}
+
 function updateScoreboard() {
-  scoreboard.innerHTML = "";
-  players.forEach((player, index) => {
-    const row = document.createElement("div");
-    row.className = "row";
-    row.innerHTML = `
-      <span class="name">${player}</span>
-      <span>${scores[index]} punten</span>
-      <button aria-label="Geef punt aan ${player}" data-idx="${index}">+1 Punt</button>
-    `;
-    const btn = row.querySelector("button");
-    btn.addEventListener("click", () => addPoint(index));
-    scoreboard.appendChild(row);
-  });
+    scoreboard.innerHTML = "";
+    players.forEach((player, index) => {
+        const row = document.createElement("div");
+        row.className = "row";
+        row.innerHTML = `${player}: ${scores[index]} punten`;
+        scoreboard.appendChild(row);
+    });
 }
 
-// Punt toevoegen en beurt wisselen
-function addPoint(index) {
-  scores[index]++;
-  updateScoreboard();
-  nextPlayer();
+function addPoint() {
+    scores[currentPlayer]++;
+    updateScoreboard();
+    nextPlayer();
 }
 
 function nextPlayer() {
-  currentPlayer = (currentPlayer + 1) % players.length;
-  info.textContent = `Nu is ${players[currentPlayer]} aan de beurt.`;
+    currentPlayer = (currentPlayer + 1) % players.length;
+    reviewSection.style.display = "none";
+    info.textContent = `Nu is ${players[currentPlayer]} aan de beurt.`;
 }
 
-// ===== Timer =====
 function startTimer() {
-  clearInterval(timerInterval);
-  timeLeft = 60;
-  timerDisplay.textContent = "⏱ Tijd: " + timeLeft + " seconden";
-  timerInterval = setInterval(() => {
-    timeLeft--;
+    clearInterval(timerInterval);
+    timeLeft = 60;
     timerDisplay.textContent = "⏱ Tijd: " + timeLeft + " seconden";
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      const summary = players.map((p, i) => `${p}: ${scores[i]} punten`).join("\n");
-      alert("⏰ Tijd is om! Eindscore:\n" + summary);
-    }
-  }, 1000);
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = "⏱ Tijd: " + timeLeft + " seconden";
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            alert("⏰ Tijd is om! Eindscore:\n" + players.map((p, i) => `${p}: ${scores[i]} punten`).join("\n"));
+        }
+    }, 1000);
 }
 
-// ===== Event Listeners =====
-startBtn.addEventListener("click", setupPlayers);
-rollBtn.addEventListener("click", rollDice);
-timerBtn.addEventListener("click", startTimer);
+// Event listeners
+document.getElementById("startBtn").addEventListener("click", setupPlayers);
+document.getElementById("rollBtn").addEventListener("click", rollDice);
+document.getElementById("timerBtn").addEventListener("click", startTimer);
+document.getElementById("goodBtn").addEventListener("click", addPoint);
+document.getElementById("badBtn").addEventListener("click", nextPlayer);
+
+// Modal instructies
+document.getElementById("instructionsBtn").addEventListener("click", () => {
+    document.getElementById("instructionsModal").setAttribute("aria-hidden", "false");
+});
+document.getElementById("closeModal").addEventListener("click", () => {
+    document.getElementById("instructionsModal").setAttribute("aria-hidden", "true");
+});
+
+
+const knowledgeQuestions = [
+    {
+        question: "Wat doet Copilot in Outlook?",
+        options: ["Maakt automatisch vergaderingen aan", "Vat e-mails samen en stelt antwoorden voor", "Verwijdert spam"],
+        correct: 1
+    },
+    {
+        question: "Welke prompt is het meest effectief voor Copilot in Word?",
+        options: ["Schrijf iets", "Maak een rapport over Q4-resultaten met een samenvatting en conclusies", "Doe iets met tekst"],
+        correct: 1
+    },
+    {
+        question: "Waar vind je Copilot in Excel?",
+        options: ["In de lintbalk bij ‘Invoegen’", "In de Copilot-knop rechtsboven", "In de statusbalk"],
+        correct: 1
+    },
+    {
+        question: "Wat is een goede tip voor een prompt?",
+        options: ["Wees vaag", "Geef context en doel", "Gebruik alleen één woord"],
+        correct: 1
+    }
+];
+
+document.getElementById("knowledgeBtn").addEventListener("click", startKnowledgeRound);
+
+function startKnowledgeRound() {
+    const q = knowledgeQuestions[Math.floor(Math.random() * knowledgeQuestions.length)];
+    info.innerHTML = `<strong>${players[currentPlayer]}:</strong> ${q.question}<br>
+        ${q.options.map((opt, i) => `<button onclick="checkAnswer(${i}, ${q.correct})">${opt}</button>`).join("<br>")}`;
+    reviewSection.style.display = "none"; // geen promptbeoordeling hier
+}
+
+function checkAnswer(selected, correct) {
+    if (selected === correct) {
+        alert("✅ Goed antwoord!");
+        scores[currentPlayer]++;
+    } else {
+        alert("❌ Fout antwoord!");
+    }
+    updateScoreboard();
+    nextPlayer();
+}
+
