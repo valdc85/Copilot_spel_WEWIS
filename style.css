@@ -1,162 +1,157 @@
 
-// Uitdagingen per vakje
-const challenges = [
-  "Word: Schrijf een projectintroductie met Copilot.",
-  "Excel: Maak een grafiek van een dataset via Copilot.",
-  "Outlook: Vat een lange e-mail samen met Copilot.",
-  "Teams: Genereer een agenda voor een meeting.",
-  "PowerPoint: Maak een creatieve titel voor een presentatie.",
-  "Word: Genereer een rapportstructuur.",
-  "Excel: Analyseer trends in een tabel.",
-  "Outlook: Schrijf een follow-up mail na een vergadering.",
-  "Teams: Stel een brainstormlijst op.",
-  "Word: Vertaal een tekst naar Engels.",
-  "Excel: Maak een formule met Copilot.",
-  "Outlook: Stel een out-of-office bericht op.",
-  "Teams: Vat een chatgesprek samen.",
-  "PowerPoint: Genereer een slide met kernpunten.",
-  "Word: Maak een samenvatting van een document.",
-  "Excel: Bereken KPI’s met Copilot."
-];
-
-const board = document.getElementById("board");
-const info = document.getElementById("info");
-const scoreboard = document.getElementById("scoreboard");
-const timerDisplay = document.getElementById("timer");
-
-const startBtn = document.getElementById("startBtn");
-const rollBtn = document.getElementById("rollBtn");
-const timerBtn = document.getElementById("timerBtn");
-
-const playerCountInput = document.getElementById("playerCount");
-
-const instructionsBtn = document.getElementById("instructionsBtn");
-const instructionsModal = document.getElementById("instructionsModal");
-const closeModalBtn = document.getElementById("closeModal");
-
-let players = [];
-let scores = [];
-let currentPlayer = 0;
-let timeLeft = 60;
-let timerInterval;
-
-// ===== Modal Instructies =====
-instructionsBtn.addEventListener("click", () => {
-  instructionsModal.setAttribute("aria-hidden", "false");
-  // Focus binnen modal (toegankelijkheid)
-  closeModalBtn.focus();
-});
-
-closeModalBtn.addEventListener("click", () => {
-  instructionsModal.setAttribute("aria-hidden", "true");
-  instructionsBtn.focus();
-});
-
-// Sluit modal bij klik buiten content
-instructionsModal.addEventListener("click", (e) => {
-  if (e.target === instructionsModal) {
-    instructionsModal.setAttribute("aria-hidden", "true");
-    instructionsBtn.focus();
-  }
-});
-
-// Sluit modal met Escape
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && instructionsModal.getAttribute("aria-hidden") === "false") {
-    instructionsModal.setAttribute("aria-hidden", "true");
-    instructionsBtn.focus();
-  }
-});
-
-// ===== Spelbord opbouwen =====
-function createBoard() {
-  board.innerHTML = "";
-  for (let i = 0; i < challenges.length; i++) {
-    const cell = document.createElement("div");
-    cell.className = "cell";
-    cell.textContent = "Vak " + (i + 1);
-    cell.addEventListener("click", () => {
-      info.textContent = `🎯 ${players[currentPlayer]}: ${challenges[i]}`;
-    });
-    board.appendChild(cell);
-  }
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  text-align: center;
+  padding: 20px;
+  color: #1f1f1f;
 }
 
-// ===== Spelers instellen =====
-function setupPlayers() {
-  const count = parseInt(playerCountInput.value, 10);
-  if (Number.isNaN(count) || count < 2 || count > 6) {
-    alert("Kies tussen 2 en 6 spelers.");
-    return;
-  }
-  players = [];
-  scores = [];
-  for (let i = 1; i <= count; i++) {
-    players.push("Speler " + i);
-    scores.push(0);
-  }
-  currentPlayer = 0;
-  updateScoreboard();
-  createBoard();
-  info.textContent = `Spel gestart met ${count} spelers! ${players[0]} begint.`;
+h1 { color: #0078d4; }
+
+.controls, .actions {
+  margin: 10px 0;
 }
 
-// ===== Dobbelsteen =====
-function rollDice() {
-  if (players.length === 0) {
-    alert("Start eerst het spel door het aantal spelers te kiezen.");
-    return;
-  }
-  const dice = Math.floor(Math.random() * challenges.length);
-  info.textContent = `🎲 ${players[currentPlayer]} gooide ${dice + 1}! Uitdaging: ${challenges[dice]}`;
+label {
+  margin-right: 8px;
 }
 
-// ===== Scorebord =====
-function updateScoreboard() {
-  scoreboard.innerHTML = "";
-  players.forEach((player, index) => {
-    const row = document.createElement("div");
-    row.className = "row";
-    row.innerHTML = `
-      <span class="name">${player}</span>
-      <span>${scores[index]} punten</span>
-      <button aria-label="Geef punt aan ${player}" data-idx="${index}">+1 Punt</button>
-    `;
-    const btn = row.querySelector("button");
-    btn.addEventListener("click", () => addPoint(index));
-    scoreboard.appendChild(row);
-  });
+input[type="number"] {
+  width: 80px;
+  padding: 6px 8px;
+  margin-right: 6px;
 }
 
-// Punt toevoegen en beurt wisselen
-function addPoint(index) {
-  scores[index]++;
-  updateScoreboard();
-  nextPlayer();
+button {
+  background: #0078d4;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 6px;
 }
 
-function nextPlayer() {
-  currentPlayer = (currentPlayer + 1) % players.length;
-  info.textContent = `Nu is ${players[currentPlayer]} aan de beurt.`;
+button:hover { background: #005a9e; }
+
+button.secondary {
+  background: #666;
+}
+button.secondary:hover {
+  background: #4d4d4d;
 }
 
-// ===== Timer =====
-function startTimer() {
-  clearInterval(timerInterval);
-  timeLeft = 60;
-  timerDisplay.textContent = "⏱ Tijd: " + timeLeft + " seconden";
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    timerDisplay.textContent = "⏱ Tijd: " + timeLeft + " seconden";
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      const summary = players.map((p, i) => `${p}: ${scores[i]} punten`).join("\n");
-      alert("⏰ Tijd is om! Eindscore:\n" + summary);
-    }
-  }, 1000);
+#board {
+  display: grid;
+  grid-template-columns: repeat(4, 120px);
+  grid-template-rows: repeat(4, 120px);
+  gap: 8px;
+  margin: 20px auto;
+  width: calc(4 * 120px + 3 * 8px);
 }
 
-// ===== Event Listeners =====
-startBtn.addEventListener("click", setupPlayers);
-rollBtn.addEventListener("click", rollDice);
-timerBtn.addEventListener("click", startTimer);
+.cell {
+  background: #fff;
+  border: 2px solid #0078d4;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  padding: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+.cell:hover { background: #e6f0fa; }
+
+#info {
+  margin-top: 10px;
+  font-size: 18px;
+  min-height: 50px;
+}
+
+#scoreboard {
+  margin-top: 16px;
+  font-size: 18px;
+  background: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  text-align: left;
+}
+
+#scoreboard .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed #ddd;
+}
+#scoreboard .row:last-child { border-bottom: none; }
+
+#scoreboard .row .name {
+  font-weight: 600;
+}
+
+#timer {
+  font-size: 20px;
+  color: #d83b01;
+  margin-top: 12px;
+}
+
+/* Modal (Instructies) */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: none;              /* verborgen standaard */
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.modal[aria-hidden="false"] {
+  display: flex;              /* tonen wanneer aria-hidden="false" */
+}
+
+.modal-content {
+  background: #ffffff;
+  color: #1f1f1f;
+  max-width: 720px;
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+  padding: 20px 24px;
+  text-align: left;
+  line-height: 1.45;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: #0078d4;
+}
+
+.modal-content ul {
+  margin: 0 0 8px 18px;
+}
+
+.modal-content .close {
+  position: absolute;
+  right: 26px;
+  top: 22px;
+  background: transparent;
+  color: #555;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-content .close:hover {
+  color: #000;
+}
