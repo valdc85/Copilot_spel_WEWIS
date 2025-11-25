@@ -2,104 +2,73 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Copilot Monopoly - Prompt & Kennis</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f4f4f4;
-        margin: 0;
-        padding: 20px;
-        text-align: center;
-    }
-    h1 { color: #0078d4; margin-bottom: 10px; }
-    .controls, .actions { margin: 15px 0; }
-    input[type="number"] { width: 70px; padding: 6px; margin-right: 8px; }
-    button {
-        background: #0078d4; color: #fff; border: none;
-        padding: 10px 16px; font-size: 16px; border-radius: 6px;
-        cursor: pointer; margin: 6px;
-    }
-    button.secondary { background: #666; }
-    button:hover { background: #005a9e; }
-    #board {
-        display: grid; grid-template-columns: repeat(4, 120px);
-        grid-template-rows: repeat(4, 120px); gap: 8px;
-        margin: 20px auto; width: calc(4 * 120px + 3 * 8px);
-    }
-    .cell {
-        background: #fff; border: 2px solid #0078d4; border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 14px; cursor: pointer; padding: 8px;
-    }
-    .cell:hover { background: #e6f0fa; }
-    #info { font-size: 18px; margin-top: 15px; min-height: 50px; }
-    #scoreboard {
-        margin-top: 20px; background: #fff; padding: 12px;
-        border-radius: 10px; width: 360px; margin: 20px auto;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15); text-align: left;
-    }
-    #scoreboard .row { display: flex; justify-content: space-between; padding: 6px 0; }
-    #review { margin-top: 20px; display: none; }
-    #timer { font-size: 20px; color: #d83b01; margin-top: 12px; }
-    .modal {
-        position: fixed; inset: 0; background: rgba(0,0,0,0.45);
-        display: none; align-items: center; justify-content: center;
-    }
-    .modal[aria-hidden="false"] { display: flex; }
-    .modal-content {
-        background: #fff; padding: 20px; border-radius: 10px;
-        max-width: 700px; width: 90%; text-align: left;
-    }
-    .close { float: right; font-size: 20px; cursor: pointer; background: none; border: none; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Copilot Monopoly - Prompt & Kennis</title>
+
+  <!-- Styles -->
+  style.css
 </head>
 <body>
 
-<h1>🎲 Copilot Monopoly</h1>
-<p>Kies aantal spelers en start het spel!</p>
+  <header>
+    <h1>🎲 Copilot Monopoly</h1>
+    <p>Kies aantal spelers en start het spel!</p>
+  </header>
 
-<div class="controls">
-    <input type="number" id="playerCount" min="2" max="6" value="3">
+  <section class="controls">
+    <label for="playerCount">Aantal spelers (2–6):</label>
+    <input type="number" id="playerCount" min="2" max="6" value="3" />
     <button id="startBtn">Start Spel</button>
     <button id="instructionsBtn" class="secondary">Instructies</button>
-</div>
+  </section>
 
-<div id="board"></div>
-<div id="info">Klik op een vakje of kies een spelmodus.</div>
+  <main>
+    <div id="board" aria-label="Spelbord"></div>
 
-<div class="actions">
-    <button id="rollBtn">Gooi dobbelsteen</button>
-    <button id="knowledgeBtn" class="secondary">Kennisronde</button>
-    <button id="timerBtn">Start Timer</button>
-</div>
+    <div id="info">Klik op een vakje of kies een spelmodus.</div>
 
-<h3>Scorebord</h3>
-<div id="scoreboard"></div>
-
-<div id="review">
-    <h4>Beoordeel prompt van <span id="currentPlayerName"></span>:</h4>
-    <button id="goodBtn">✅ Goed</button>
-    <button id="badBtn">❌ Niet goed</button>
-</div>
-
-<div id="timer">⏱ Tijd: 60 seconden</div>
-
-<!-- Instructies Modal -->
-<div id="instructionsModal" class="modal" aria-hidden="true">
-    <div class="modal-content">
-        <button class="close" id="closeModal">✕</button>
-        <h2>Speluitleg</h2>
-        <ul>
-            <li>Kies aantal spelers en klik <strong>Start Spel</strong>.</li>
-            <li>Klik op een vakje of <strong>Gooi dobbelsteen</strong> voor een uitdaging.</li>
-            <li>Speler geeft een prompt of antwoord op kennisvraag.</li>
-            <li>Moderator beoordeelt met ✅ of ❌.</li>
-            <li>Gebruik <strong>Kennisronde</strong> voor quizvragen.</li>
-            <li>Gebruik <strong>Start Timer</strong> voor 60 sec per beurt.</li>
-        </ul>
+    <div class="actions">
+      <button id="rollBtn">Gooi dobbelsteen</button>
+      <button id="knowledgeBtn" class="secondary">Kennisronde</button>
+      <button id="timerBtn">Start Timer</button>
     </div>
-</div>
+
+    <section aria-labelledby="scoreTitle">
+      <h3 id="scoreTitle">Scorebord</h3>
+      <div id="scoreboard" aria-live="polite"></div>
+    </section>
+
+    <section id="review" aria-live="polite" aria-hidden="true">
+      <h4>Beoordeel prompt van <span id="currentPlayerName"></span>:</h4>
+      <button id="goodBtn">✅ Goed</button>
+      <button id="badBtn">❌ Niet goed</button>
+    </section>
+
+    <div id="timer" aria-live="polite">⏱ Tijd: 60 seconden</div>
+  </main>
+
+  <!-- Instructies Modal -->
+  <div id="instructionsModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="instrTitle" aria-describedby="instrContent">
+    <div class="modal-content">
+      <button class="close" id="closeModal" aria-label="Sluit instructies">✕</button>
+      <h2 id="instrTitle">Speluitleg</h2>
+      <div id="instrContent">
+        <ul>
+          <li><strong>Doel:</strong> Formuleer een goede prompt voor Copilot of beantwoord kennisvragen.</li>
+          <li><strong>Start:</strong> Kies aantal spelers (2–6) en klik <em>Start Spel</em>.</li>
+          <li><strong>Beurt:</strong> Klik op een vakje of kies <em>Gooi dobbelsteen</em>/<em>Kennisronde</em>.</li>
+          <li><strong>Prompt-beoordeling:</strong> Moderator klikt op ✅/❌ (✅ = +1 punt, daarna beurt wissel).</li>
+          <li><strong>Kennisronde:</strong> Kies het juiste antwoord. Goed = +1 punt.</li>
+          <li><strong>Timer:</strong> 60 seconden per beurt voor extra energie.</li>
+          <li><strong>Winnaar:</strong> Hoogste score na X rondes of aan het einde van de sessie.</li>
+        </ul>
+        <p><em>Voorbeeldprompt (Excel):</em> “Maak een staafdiagram van omzet per maand uit deze tabel en voeg de titel ‘Omzetoverzicht 2025’ toe.”</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  script.js</script>
 </body>
 </html>
