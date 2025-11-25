@@ -2,27 +2,63 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Copilot Monopoly Multiplayer</title>
-style.css
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Copilot Monopoly - Multiplayer</title>
+  style.css
 </head>
 <body>
 
-<h1>🎲 Copilot Monopoly - Multiplayer</h1>
-<p>Klik op een vakje om jouw Copilot-uitdaging te zien!</p>
+  <h1>🎲 Copilot Monopoly - Multiplayer</h1>
+  <p>Voer het aantal spelers in en start het spel!</p>
 
-<div id="board"></div>
+  <div class="controls">
+    <label for="playerCount">Aantal spelers (2–6):</label>
+    <input type="number" id="playerCount" min="2" max="6" value="3" />
+    <button id="startBtn">Start Spel</button>
+    <button id="instructionsBtn" class="secondary">Instructies</button>
+  </div>
 
-<div id="info">Start het spel door op een vakje te klikken.</div>
-<button onclick="rollDice()">Gooi dobbelsteen</button>
+  <div id="board" aria-label="Spelbord"></div>
 
-<h3>Scorebord</h3>
-<div id="scoreboard"></div>
+  <div id="info">Kies een vakje om jouw Copilot-uitdaging te zien.</div>
 
-<div id="timer">⏱ Tijd: 60 seconden</div>
-<button onclick="startTimer()">Start Timer</button>
+  <div class="actions">
+    <button id="rollBtn">Gooi dobbelsteen</button>
+    <button id="timerBtn">Start Timer</button>
+  </div>
 
-script.js</script>
+  <h3>Scorebord</h3>
+  <div id="scoreboard" aria-live="polite"></div>
+
+  <!-- Instructies Modal -->
+  <div id="instructionsModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="instrTitle" aria-describedby="instrContent">
+    <div class="modal-content">
+      <button class="close" id="closeModal" aria-label="Sluit instructies">✕</button>
+      <h2 id="instrTitle">Speluitleg</h2>
+      <div id="instrContent">
+        <ul>
+          <li><strong>Doel:</strong> Speel in rondes en verdien punten door Copilot-uitdagingen uit te voeren of duidelijk uit te leggen hoe je dit doet.</li>
+          <li><strong>Start:</strong> Kies het aantal spelers (2–6) en klik <em>Start Spel</em>. Speler 1 begint.</li>
+          <li><strong>Beurt:</strong> Klik op een vakje of op <em>Gooi dobbelsteen</em> voor een willekeurige uitdaging. De actieve speler voert uit/legt uit.</li>
+          <li><strong>Punten:</strong> De moderator klikt op <em>+1 Punt</em> bij de juiste speler. Na punten toekennen gaat de beurt automatisch naar de volgende speler.</li>
+          <li><strong>Timer:</strong> Klik <em>Start Timer</em> voor 60 seconden per uitdaging. Bij tijd om verschijnt een totaalscore.</li>
+          <li><strong>Winnaar:</strong> Na X rondes of aan het einde van je sessie: speler met hoogste score wint.</li>
+          <li><strong>Tips voor prompts:</strong>
+            <ul>
+              <li>Wees specifiek: context, doel, toon, doelgroep.</li>
+              <li>Vraag om varianten of verbeteringen: “Geef 3 alternatieven.”</li>
+              <li>Laat Copilot samenvatten, structureren, en acties voorstellen.</li>
+            </ul>
+          </li>
+        </ul>
+        <p><em>Voorbeeldprompt (Outlook):</em> “Vat deze e-mail samen in 5 bullets en markeer beslissingen en actiepunten met namen en deadlines.”</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="timer" aria-live="polite">⏱ Tijd: 60 seconden</div>
+
+  script.js</script>
 </body>
 </html>
