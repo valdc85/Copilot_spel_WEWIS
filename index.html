@@ -2,64 +2,200 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Copilot Monopoly - Multiplayer</title>
-  style.css
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Copilot Monopoly - Prompt & Kennis</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+    }
+    h1 { color: #0078d4; margin-bottom: 10px; }
+    .controls, .actions { margin: 15px 0; }
+    input[type="number"] { width: 70px; padding: 6px; margin-right: 8px; }
+    button {
+        background: #0078d4; color: #fff; border: none;
+        padding: 10px 16px; font-size: 16px; border-radius: 6px;
+        cursor: pointer; margin: 6px;
+    }
+    button.secondary { background: #666; }
+    button:hover { background: #005a9e; }
+    #board {
+        display: grid; grid-template-columns: repeat(4, 120px);
+        grid-template-rows: repeat(4, 120px); gap: 8px;
+        margin: 20px auto; width: calc(4 * 120px + 3 * 8px);
+    }
+    .cell {
+        background: #fff; border: 2px solid #0078d4; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px; cursor: pointer; padding: 8px;
+    }
+    .cell:hover { background: #e6f0fa; }
+    #info { font-size: 18px; margin-top: 15px; min-height: 50px; }
+    #scoreboard {
+        margin-top: 20px; background: #fff; padding: 12px;
+        border-radius: 10px; width: 360px; margin: 20px auto;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15); text-align: left;
+    }
+    #scoreboard .row { display: flex; justify-content: space-between; padding: 6px 0; }
+    #review { margin-top: 20px; display: none; }
+    #timer { font-size: 20px; color: #d83b01; margin-top: 12px; }
+    .modal {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+        display: none; align-items: center; justify-content: center;
+    }
+    .modal[aria-hidden="false"] { display: flex; }
+    .modal-content {
+        background: #fff; padding: 20px; border-radius: 10px;
+        max-width: 700px; width: 90%; text-align: left;
+    }
+    .close { float: right; font-size: 20px; cursor: pointer; background: none; border: none; }
+</style>
 </head>
 <body>
 
-  <h1>🎲 Copilot Monopoly - Multiplayer</h1>
-  <p>Voer het aantal spelers in en start het spel!</p>
+<h1>🎲 Copilot Monopoly</h1>
+<p>Kies aantal spelers en start het spel!</p>
 
-  <div class="controls">
-    <label for="playerCount">Aantal spelers (2–6):</label>
-    <input type="number" id="playerCount" min="2" max="6" value="3" />
+<div class="controls">
+    <input type="number" id="playerCount" min="2" max="6" value="3">
     <button id="startBtn">Start Spel</button>
     <button id="instructionsBtn" class="secondary">Instructies</button>
-    <button id="knowledgeBtn" class="secondary">Kennisronde</button>
-  </div>
+</div>
 
-  <div id="board" aria-label="Spelbord"></div>
+<div id="board"></div>
+<div id="info">Klik op een vakje of kies een spelmodus.</div>
 
-  <div id="info">Kies een vakje om jouw Copilot-uitdaging te zien.</div>
-
-  <div class="actions">
+<div class="actions">
     <button id="rollBtn">Gooi dobbelsteen</button>
+    <button id="knowledgeBtn" class="secondary">Kennisronde</button>
     <button id="timerBtn">Start Timer</button>
-  </div>
+</div>
 
-  <h3>Scorebord</h3>
-  <div id="scoreboard" aria-live="polite"></div>
+<h3>Scorebord</h3>
+<div id="scoreboard"></div>
 
-  <!-- Instructies Modal -->
-  <div id="instructionsModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="instrTitle" aria-describedby="instrContent">
+<div id="review">
+    <h4>Beoordeel prompt van <span id="currentPlayerName"></span>:</h4>
+    <button id="goodBtn">✅ Goed</button>
+    <button id="badBtn">❌ Niet goed</button>
+</div>
+
+<div id="timer">⏱ Tijd: 60 seconden</div>
+
+<!-- Instructies Modal -->
+<div id="instructionsModal" class="modal" aria-hidden="true">
     <div class="modal-content">
-      <button class="close" id="closeModal" aria-label="Sluit instructies">✕</button>
-      <h2 id="instrTitle">Speluitleg</h2>
-      <div id="instrContent">
+        <button class="close" id="closeModal">✕</button>
+        <h2>Speluitleg</h2>
         <ul>
-          <li><strong>Doel:</strong> Speel in rondes en verdien punten door Copilot-uitdagingen uit te voeren of duidelijk uit te leggen hoe je dit doet.</li>
-          <li><strong>Start:</strong> Kies het aantal spelers (2–6) en klik <em>Start Spel</em>. Speler 1 begint.</li>
-          <li><strong>Beurt:</strong> Klik op een vakje of op <em>Gooi dobbelsteen</em> voor een willekeurige uitdaging. De actieve speler voert uit/legt uit.</li>
-          <li><strong>Punten:</strong> De moderator klikt op <em>+1 Punt</em> bij de juiste speler. Na punten toekennen gaat de beurt automatisch naar de volgende speler.</li>
-          <li><strong>Timer:</strong> Klik <em>Start Timer</em> voor 60 seconden per uitdaging. Bij tijd om verschijnt een totaalscore.</li>
-          <li><strong>Winnaar:</strong> Na X rondes of aan het einde van je sessie: speler met hoogste score wint.</li>
-          <li><strong>Tips voor prompts:</strong>
-            <ul>
-              <li>Wees specifiek: context, doel, toon, doelgroep.</li>
-              <li>Vraag om varianten of verbeteringen: “Geef 3 alternatieven.”</li>
-              <li>Laat Copilot samenvatten, structureren, en acties voorstellen.</li>
-            </ul>
-          </li>
+            <li>Kies aantal spelers en klik <strong>Start Spel</strong>.</li>
+            <li>Klik op een vakje of <strong>Gooi dobbelsteen</strong> voor een uitdaging.</li>
+            <li>Speler geeft een prompt of antwoord op kennisvraag.</li>
+            <li>Moderator beoordeelt met ✅ of ❌.</li>
+            <li>Gebruik <strong>Kennisronde</strong> voor quizvragen.</li>
+            <li>Gebruik <strong>Start Timer</strong> voor 60 sec per beurt.</li>
         </ul>
-        <p><em>Voorbeeldprompt (Outlook):</em> “Vat deze e-mail samen in 5 bullets en markeer beslissingen en actiepunten met namen en deadlines.”</p>
-      </div>
     </div>
-  </div>
+</div>
 
-  <div id="timer" aria-live="polite">⏱ Tijd: 60 seconden</div>
+<script>
+const challenges = [
+    "Je wil een grafiek in Excel. Welke prompt gebruik je?",
+    "Je wil een samenvatting van een document in Word. Schrijf een goede prompt.",
+    "Vraag Copilot om een haiku over jouw werkdag.",
+    "Laat Copilot een rap maken over Excel-formules.",
+    "Gebruik Copilot om een e-mail te schrijven alsof je een superheld bent.",
+    "Vraag Copilot om een grappige titel voor een PowerPoint over KPI’s.",
+    "Je wil een brainstormlijst in Teams. Formuleer een duidelijke prompt.",
+    "Je wil een KPI-overzicht in Excel. Hoe vraag je dat?",
+    "Je wil een follow-up mail na een vergadering. Geef een goede prompt.",
+    "Vraag Copilot om een slogan voor jouw team, alsof het een rockband is."
+];
 
-  script.js</script>
+const knowledgeQuestions = [
+    {question:"Wat doet Copilot in Outlook?",options:["Maakt vergaderingen","Vat e-mails samen","Verwijdert spam"],correct:1},
+    {question:"Wat is een goede tip voor een prompt?",options:["Wees vaag","Geef context en doel","Gebruik één woord"],correct:1},
+    {question:"Waar vind je Copilot in Excel?",options:["Lintbalk","Copilot-knop rechtsboven","Statusbalk"],correct:1}
+];
+
+let players=[],scores=[],currentPlayer=0,timeLeft=60,timerInterval;
+
+const board=document.getElementById("board"),info=document.getElementById("info"),scoreboard=document.getElementById("scoreboard"),review=document.getElementById("review"),currentPlayerName=document.getElementById("currentPlayerName");
+
+function createBoard(){
+    board.innerHTML="";
+    for(let i=0;i<challenges.length;i++){
+        const cell=document.createElement("div");
+        cell.className="cell";cell.textContent="Vak "+(i+1);
+        cell.onclick=()=>showChallenge(challenges[i]);
+        board.appendChild(cell);
+    }
+}
+
+function setupPlayers(){
+    const count=parseInt(document.getElementById("playerCount").value);
+    if(count<2||count>6){alert("Kies tussen 2 en 6 spelers.");return;}
+    players=[];scores=[];
+    for(let i=1;i<=count;i++){players.push("Speler "+i);scores.push(0);}
+    currentPlayer=0;updateScoreboard();createBoard();
+    info.textContent=`Spel gestart met ${count} spelers! ${players[0]} begint.`;
+}
+
+function showChallenge(challenge){
+    info.textContent=`🎯 ${players[currentPlayer]}: ${challenge}`;
+    review.style.display="block";currentPlayerName.textContent=players[currentPlayer];
+}
+
+function rollDice(){
+    const dice=Math.floor(Math.random()*challenges.length);
+    showChallenge(challenges[dice]);
+}
+
+function updateScoreboard(){
+    scoreboard.innerHTML="";
+    players.forEach((p,i)=>{
+        const row=document.createElement("div");
+        row.className="row";row.textContent=`${p}: ${scores[i]} punten`;
+        scoreboard.appendChild(row);
+    });
+}
+
+function addPoint(){scores[currentPlayer]++;updateScoreboard();nextPlayer();}
+function nextPlayer(){currentPlayer=(currentPlayer+1)%players.length;review.style.display="none";info.textContent=`Nu is ${players[currentPlayer]} aan de beurt.`;}
+
+function startTimer(){
+    clearInterval(timerInterval);timeLeft=60;
+    document.getElementById("timer").textContent="⏱ Tijd: "+timeLeft+" seconden";
+    timerInterval=setInterval(()=>{
+        timeLeft--;document.getElementById("timer").textContent="⏱ Tijd: "+timeLeft+" seconden";
+        if(timeLeft<=0){clearInterval(timerInterval);alert("⏰ Tijd om! Eindscore:\n"+players.map((p,i)=>`${p}: ${scores[i]} punten`).join("\n"));}},1000);
+}
+
+function startKnowledgeRound(){
+    const q=knowledgeQuestions[Math.floor(Math.random()*knowledgeQuestions.length)];
+    info.innerHTML=`<strong>${players[currentPlayer]}:</strong> ${q.question}<br>`+
+    q.options.map((opt,i)=>`<button onclick="checkAnswer(${i},${q.correct})">${opt}</button>`).join("<br>");
+    review.style.display="none";
+}
+
+function checkAnswer(sel,correct){
+    if(sel===correct){alert("✅ Goed antwoord!");scores[currentPlayer]++;}else{alert("❌ Fout antwoord!");}
+    updateScoreboard();nextPlayer();
+}
+
+// Event listeners
+document.getElementById("startBtn").onclick=setupPlayers;
+document.getElementById("rollBtn").onclick=rollDice;
+document.getElementById("timerBtn").onclick=startTimer;
+document.getElementById("knowledgeBtn").onclick=startKnowledgeRound;
+document.getElementById("goodBtn").onclick=addPoint;
+document.getElementById("badBtn").onclick=nextPlayer;
+document.getElementById("instructionsBtn").onclick=()=>document.getElementById("instructionsModal").setAttribute("aria-hidden","false");
+document.getElementById("closeModal").onclick=()=>document.getElementById("instructionsModal").setAttribute("aria-hidden","true");
+</script>
 </body>
 </html>
