@@ -5,25 +5,33 @@ const challenges = [
     // "Outlook: Vat een lange e-mail samen met Copilot.",
     // "Teams: Genereer een agenda voor een meeting.",
     "Vraag Copilot om een grappige titel voor een PowerPoint over deze community",
-  "Je wil een grafiek in Excel. Welke prompt gebruik je?",
+    "Je wil een grafiek in Excel. Welke prompt gebruik je?",
     "Je wil een samenvatting van een document in Word. Schrijf een goede prompt.",
     "Je wil een e-mail herschrijven in een vriendelijke toon. Hoe vraag je dat?",
     "Je wil een brainstormlijst in Teams. Formuleer een duidelijke prompt.",
     "Je wil een PowerPoint-slide met 3 kernpunten. Welke prompt geef je?",
     "Je wil een KPI-overzicht in Excel. Hoe vraag je dat aan Copilot?",
     "Je wil een agenda voor een projectmeeting. Schrijf een voorbeeldprompt.",
-  "Gebruik Copilot om een lijst te maken van 5 redenen waarom Copilot beter is dan koffie.",
+     "Gebruik Copilot om een lijst te maken van 5 redenen waarom Copilot beter is dan koffie.",
     "Je wil een titel voor een rapport in Word. Hoe formuleer je dat?",
     "Je wil een follow-up mail na een vergadering. Geef een goede prompt.",
     "Je wil een tekst vertalen naar Engels. Hoe vraag je dat aan Copilot?",
-   "Vraag Copilot om een slogan voor jouw team, alsof het een rockband is.",
+    "Vraag Copilot om een slogan voor jouw team, alsof het een rockband is.",
     "Laat Copilot een gedicht maken over deadlines."
 ];
 
 const knowledgeQuestions = [
   {question:"Wat doet Copilot in Outlook?",options:["Maakt vergaderingen","Vat e-mails samen","Verwijdert spam"],correct:1},
   {question:"Wat is een goede tip voor een prompt?",options:["Wees vaag","Geef context en doel","Gebruik één woord"],correct:1},
-  {question:"Waar vind je Copilot in Excel?",options:["Lintbalk","Copilot-knop rechtsboven","Statusbalk"],correct:1}
+  {question:"Waar vind je Copilot in Excel?",options:["Lintbalk","Copilot-knop rechtsboven","Statusbalk"],correct:1},
+  // Moeilijke vragen
+  {question:"Welke AI-technologie ligt aan de basis van Microsoft Copilot?",options:["Regelgebaseerde systemen","Grote taalmodellen (LLM)","Neurale netwerken voor beeldherkenning"],correct:1},
+  {question:"Wat is een belangrijk voordeel van context in prompts?",options:["Het maakt antwoorden sneller","Het verhoogt de nauwkeurigheid van het antwoord","Het voorkomt dat Copilot werkt"],correct:1},
+  {question:"Hoe zorgt Copilot voor gegevensbeveiliging?",options:["Door alle data naar OpenAI te sturen","Door gebruik te maken van Microsoft 365 compliance en tenant-isolatie","Door geen beveiliging toe te passen"],correct:1},
+  {question:"Wat is een risico van AI-hallucinaties?",options:["AI geeft soms onjuiste of verzonnen informatie","AI weigert altijd te antwoorden","AI kan geen tekst genereren"],correct:0},
+  {question:"Welke factor beïnvloedt de kwaliteit van Copilot-output het meest?",options:["Lengte van de prompt","Duidelijkheid en context van de prompt","Aantal woorden in het document"],correct:1},
+  {question:"Scenario: Je wilt Copilot gebruiken om een juridisch document samen te vatten. Wat moet je controleren?",options:["Dat Copilot juridisch advies geeft","Dat je de samenvatting verifieert op juistheid","Dat Copilot het document verwijdert"],correct:1},
+  {question:"Wat is een belangrijk verschil tussen Copilot en ChatGPT?",options:["Copilot werkt binnen Microsoft 365-apps en gebruikt bedrijfsdata","Copilot is alleen een chatbot","Copilot heeft geen toegang tot documenten"],correct:0}
 ];
 
 let players=[],scores=[],currentPlayer=0,timeLeft=60,timerInterval;
